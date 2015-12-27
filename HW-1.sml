@@ -90,9 +90,92 @@ end
 (* number_before_reaching_sum int * int list *)
 fun number_before_reaching_sum(sum:int,nums:int list) = 
 let fun sum_check(tmp_sum:int,n:int,xs:int list) = 
-    if tmp_sum >= sum orelse null xs
+    if null xs orelse tmp_sum + hd xs >= sum
     then n
     else sum_check(tmp_sum+ hd xs,n+1,tl xs)
 in sum_check(0,0,nums)
 end
 
+(* what_month *)
+fun what_month(day:int) = 
+let val nums = [31,28,31,30,31,30,31,31,30,31,30,31]
+in
+ number_before_reaching_sum(day,nums)+1
+end
+
+(* month_range *)
+fun month_range(day1:int,day2:int) = 
+let
+  val m_day1 = what_month(day1)
+  val m_day2 = what_month(day2)
+  fun count(from:int,num:int) = 
+   if num > day2-day1+1
+   then []
+   else
+    if from=m_day2
+    then from::count(from,num+1)
+    else from::count(from+1,num+1)
+in 
+ if day1>day2
+ then [] 
+ else count(m_day1,1)
+end 
+
+(* Returns the oldest date in the range(type OPTION) *)
+fun oldest(dates:(int * int *int)list) = 
+if null dates
+then NONE
+else
+  let fun check(xs:(int * int *int)list) = 
+    if null (tl xs)
+    then hd xs
+    else 
+     let val temp = check(tl xs)
+     in
+      if is_older(hd xs,temp)
+      then hd xs
+      else temp
+     end
+   in
+    SOME (check(dates))
+   end   	     
+
+(* remove_duplicates (int list)*)
+fun remove_duplicates(nums: int list) = 
+ let
+  fun match(xs:int list,num:int) = 
+    if null xs
+    then false
+    else if hd xs = num
+    then true
+    else
+    match(tl xs,num)
+
+ fun adder(curr:int list,itr:int list) = 
+   if null itr
+   then curr
+   else
+    if match(curr,hd itr)
+    then adder(curr,tl itr) 
+    else adder(hd itr::curr,tl itr)
+ in
+  adder([],nums)
+end
+
+(* number_in_months_challenge *)
+fun number_in_months_challenge(dates:(int * int * int) list,months:int list) = 
+let
+  val unique_months = remove_duplicates(months)
+in
+ number_in_months(dates,unique_months)
+end
+
+(* dates_in_months_challenge *)
+fun dates_in_months_challenge(dates:(int * int *int)list,months:int list) = 
+let
+  val unique_months = remove_duplicates(months)
+in
+  dates_in_months(dates,unique_months)
+end
+      
+      
